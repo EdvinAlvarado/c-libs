@@ -89,4 +89,15 @@ int main() {
 	puts("fill");
 	fill(&v, 1000.f);
 	println(v);
+
+	puts("void resize");
+	resize(&v, 3, NULL);
+	println(v);
+
+	puts("at");
+	float* n = NULL;
+	at(v, 2, &n);
+	printf("%f\n", *n);
+	*n = 2;
+	println(v);
 }

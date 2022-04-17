@@ -1,52 +1,48 @@
 #include "vector.h"
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 
 
 // init
-struct vector new_string_vector(char** arr, size_t size) {
-	char** ptr = (char**)malloc(size * sizeof(char*)); 
+vector new_string_vector(string* arr, size_t size) {
+	string* ptr = (string*)malloc(size * sizeof(string)); 
 	for (int i = 0; i < size; i++) {
-		ptr[i] = (char*)malloc(strlen(arr[i]) * sizeof(char));
+		ptr[i] = (string)malloc(strlen(arr[i]) * sizeof(char));
 		strcpy(ptr[i], arr[i]);
 	}
-	return (struct vector) {
+	return (vector) {
 		.ptr = ptr,
 		.size = size,
 		.type = STRING,
 	};
 }
-struct vector new_int_vector(int* arr, size_t size) {
+vector new_int_vector(int* arr, size_t size) {
 	int* ptr = (int*)malloc(size * sizeof(int)); 
 	for (int i = 0; i < size; i++) {
 		ptr[i] = arr[i];
 	}
-	return (struct vector) {
+	return (vector) {
 		.ptr = ptr,
 		.size = size,
 		.type = INT,
 	};
 }
-struct vector new_flt_vector(float* arr, size_t size) {
+vector new_flt_vector(float* arr, size_t size) {
 	float* ptr = (float*)malloc(size * sizeof(float)); 
 	for (int i = 0; i < size; i++) {
 		ptr[i] = arr[i];
 	}
-	return (struct vector) {
+	return (vector) {
 		.ptr = ptr,
 		.size = size,
 		.type = FLOAT,
 	};
 }
-struct vector new_bool_vector(bool* arr, size_t size) {
+vector new_bool_vector(bool* arr, size_t size) {
 	bool* ptr = (bool*)malloc(size * sizeof(bool)); 
 	for (int i = 0; i < size; i++) {
 		ptr[i] = arr[i];
 	}
-	return (struct vector) {
+	return (vector) {
 		.ptr = ptr,
 		.size = size,
 		.type = BOOL,
@@ -54,36 +50,59 @@ struct vector new_bool_vector(bool* arr, size_t size) {
 }
 
 
-void* as_ptr(struct vector v, size_t* rsize) {
+void* as_ptr(vector v, size_t* rsize) {
 	*rsize = v.size;
 	return v.ptr;
 }
 
 // get
-void get_string(struct vector arr, size_t i, char** return_val) {
+void get_string(vector arr, size_t i, string* rval) {
 	if (i < 0 || i >= arr.size) {puts("out of bounds");}
 	if (arr.type != STRING) {puts("wrong type");}
-	*return_val = ((char**)arr.ptr)[i];
+	*rval = ((string*)arr.ptr)[i];
 }
-void get_int(struct vector arr, size_t i, int* return_val) {
+void get_int(vector arr, size_t i, int* rval) {
 	if (i < 0 || i >= arr.size) {puts("out of bounds");}
 	if (arr.type != INT) {puts("wrong type");}
-	*return_val = ((int*) arr.ptr)[i];
+	*rval = ((int*) arr.ptr)[i];
 }
-void get_float(struct vector arr, size_t i, float* return_val) {
+void get_float(vector arr, size_t i, float* rval) {
 	if (i < 0 || i >= arr.size) {puts("out of bounds");}
 	if (arr.type != FLOAT) {puts("wrong type");}
-	*return_val = ((float*) arr.ptr)[i];
+	*rval = ((float*) arr.ptr)[i];
 }
-void get_bool(struct vector arr, size_t i, bool* return_val) {
+void get_bool(vector arr, size_t i, bool* rval) {
 	if (i < 0 || i >= arr.size) {puts("out of bounds");}
 	if (arr.type != BOOL) {puts("wrong type");}
-	*return_val = ((bool*) arr.ptr)[i];
+	*rval = ((bool*) arr.ptr)[i];
 }
 
-void realloc_vector(struct vector *this) {
+
+// at
+void at_string(vector arr, size_t i, string** rptr) {
+	if (i < 0 || i >= arr.size) {puts("out of bounds");}
+	if (arr.type != STRING) {puts("wrong type");}
+	*rptr = &((string*)arr.ptr)[i];
+}
+void at_int(vector arr, size_t i, int** rptr) {
+	if (i < 0 || i >= arr.size) {puts("out of bounds");}
+	if (arr.type != INT) {puts("wrong type");}
+	*rptr = &((int*) arr.ptr)[i];
+}
+void at_float(vector arr, size_t i, float** rptr) {
+	if (i < 0 || i >= arr.size) {puts("out of bounds");}
+	if (arr.type != FLOAT) {puts("wrong type");}
+	*rptr = &((float*) arr.ptr)[i];
+}
+void at_bool(vector arr, size_t i, bool** rptr) {
+	if (i < 0 || i >= arr.size) {puts("out of bounds");}
+	if (arr.type != BOOL) {puts("wrong type");}
+	*rptr = &((bool*) arr.ptr)[i];
+}
+
+void realloc_vector(vector *this) {
     switch (this->type) {
-        case STRING: this->ptr = (char**) realloc(this->ptr, this->size * sizeof(char*)); break;
+        case STRING: this->ptr = (string*) realloc(this->ptr, this->size * sizeof(string)); break;
         case INT: this->ptr = (int*) realloc(this->ptr, this->size * sizeof(int)); break;
         case FLOAT: this->ptr = (float*) realloc(this->ptr, this->size * sizeof(float)); break;
         case BOOL: this->ptr = (bool*) realloc(this->ptr, this->size * sizeof(bool)); break;
@@ -91,15 +110,16 @@ void realloc_vector(struct vector *this) {
     }
 }
 
+
 // Reserve additional capacity
-void reserve(struct vector *arr, size_t n) {
+void reserve(vector *arr, size_t n) {
 	arr->size += n;
 	realloc_vector(arr);
 }
 
 
 // resize
-void truncate(struct vector* arr, size_t len) {
+void truncate(vector* arr, size_t len) {
 	if (len < arr->size) {
 		arr->size = len;
 		realloc_vector(arr);
@@ -107,7 +127,13 @@ void truncate(struct vector* arr, size_t len) {
 
 }
 
-void resize_string(struct vector* arr, size_t size, char* val) {
+
+// resize
+void _resize_null(vector *arr, size_t size, void* null) {
+	arr->size = size;
+	realloc_vector(arr);
+}
+void resize_string(vector* arr, size_t size, string val) {
 	if (arr->type != STRING) {puts("wrong type");}
 	bool bigger = (size > arr->size);
 	size_t prev_size = arr->size;
@@ -115,11 +141,11 @@ void resize_string(struct vector* arr, size_t size, char* val) {
 	realloc_vector(arr);
 	if (bigger){
 		for (int i = prev_size; i < arr->size; i++) {
-			((char**) arr->ptr)[i] = val;
+			((string*) arr->ptr)[i] = val;
 		}
 	}
 }
-void resize_int(struct vector* arr, size_t size, int val) {
+void resize_int(vector* arr, size_t size, int val) {
 	if (arr->type != INT) {puts("wrong type");}
 	bool bigger = (size > arr->size);
 	size_t prev_size = arr->size;
@@ -131,7 +157,7 @@ void resize_int(struct vector* arr, size_t size, int val) {
 		}
 	}
 }
-void resize_flt(struct vector* arr, size_t size, float val) {
+void resize_flt(vector* arr, size_t size, float val) {
 	if (arr->type != FLOAT) {puts("wrong type");}
 	bool bigger = (size > arr->size);
 	size_t prev_size = arr->size;
@@ -143,7 +169,7 @@ void resize_flt(struct vector* arr, size_t size, float val) {
 		}
 	}
 }
-void resize_bool(struct vector* arr, size_t size, bool val) {
+void resize_bool(vector* arr, size_t size, bool val) {
 	if (arr->type != BOOL) {puts("wrong type");}
 	bool bigger = (size > arr->size);
 	size_t prev_size = arr->size;
@@ -158,25 +184,25 @@ void resize_bool(struct vector* arr, size_t size, bool val) {
 
 
 // pop
-void pop_string(struct vector* arr, char** rval) {
+void pop_string(vector* arr, string* rval) {
 	if (arr->type != STRING) {puts("wrong type");}
-	*rval = ((char**) arr->ptr)[arr->size-1];
+	*rval = ((string*) arr->ptr)[arr->size-1];
 	arr->size--;
 	realloc_vector(arr);
 }
-void pop_int(struct vector* arr, int* rval) {
+void pop_int(vector* arr, int* rval) {
 	if (arr->type != INT) {puts("wrong type");}
 	*rval = ((int*) arr->ptr)[arr->size-1];
 	arr->size--;
 	realloc_vector(arr);
 }
-void pop_flt(struct vector* arr, float* rval) {
+void pop_flt(vector* arr, float* rval) {
 	if (arr->type != FLOAT) {puts("wrong type");}
 	*rval = ((float*) arr->ptr)[arr->size-1];
 	arr->size--;
 	realloc_vector(arr);
 }
-void pop_bool(struct vector* arr, bool* rval) {
+void pop_bool(vector* arr, bool* rval) {
 	if (arr->type != BOOL) {puts("wrong type");}
 	*rval = ((bool*) arr->ptr)[arr->size-1];
 	arr->size--;
@@ -185,25 +211,25 @@ void pop_bool(struct vector* arr, bool* rval) {
 
 
 // push
-void push_string(struct vector* arr, char* val) {
+void push_string(vector* arr, string val) {
 	if (arr->type != STRING) {puts("wrong type");}
 	arr->size++;
 	realloc_vector(arr);
-	((char**) arr->ptr)[arr->size-1] = val;
+	((string*) arr->ptr)[arr->size-1] = val;
 }
-void push_int(struct vector* arr, int val) {
+void push_int(vector* arr, int val) {
 	if (arr->type != INT) {puts("wrong type");}
 	arr->size++;
 	realloc_vector(arr);
 	((int*) arr->ptr)[arr->size-1] = val;
 }
-void push_flt(struct vector* arr, float val) {
+void push_flt(vector* arr, float val) {
 	if (arr->type != FLOAT) {puts("wrong type");}
 	arr->size++;
 	realloc_vector(arr);
 	((float*) arr->ptr)[arr->size-1] = val;
 }
-void push_bool(struct vector* arr, bool val) {
+void push_bool(vector* arr, bool val) {
 	if (arr->type != BOOL) {puts("wrong type");}
 	arr->size++;
 	realloc_vector(arr);
@@ -212,14 +238,14 @@ void push_bool(struct vector* arr, bool val) {
 
 
 // consumes the latter vector
-void append(struct vector* this, struct vector arr) {
+void append(vector* this, vector arr) {
 	if (this->type != arr.type) {puts("vector are different types");}
 	size_t pos = this->size;
 	this->size += arr.size;
 	realloc_vector(this);
 	for (size_t i = 0; i < arr.size; i++) {
 	    switch (this->type) {
-			case STRING: strcpy(((char**) this->ptr)[pos+i], ((char**) arr.ptr)[i]); break;
+			case STRING: strcpy(((string*) this->ptr)[pos+i], ((string*) arr.ptr)[i]); break;
 			case INT: ((int*) this->ptr)[pos+i] = ((int*) arr.ptr)[i]; break;
 			case FLOAT: ((float*) this->ptr)[pos+i] = ((float*) arr.ptr)[i]; break;
 			case BOOL:  ((bool*) this->ptr)[pos+i] = ((bool*) arr.ptr)[i]; break;
@@ -229,28 +255,28 @@ void append(struct vector* this, struct vector arr) {
 }
 
 // clear 
-void clear(struct vector* arr) {
+void clear(vector* arr) {
 	arr->size = 0;
 	realloc_vector(arr);
 }
 
-bool is_empty(struct vector arr) {
+bool is_empty(vector arr) {
 	return arr.size == 0;
 }
 
 
 // insert
-void insert_string(struct vector* arr, const int pos, char* val) {
+void insert_string(vector* arr, const int pos, string val) {
 	if (pos < 0 || pos >= arr->size) {puts("out of bounds");}
 	if (arr->type != STRING) {puts("wrong type");}
 	arr->size++;
 	realloc_vector(arr);
 	for (size_t i = arr->size-1; i > pos; i--) {
-		((char**) arr->ptr)[i] = ((char**) arr->ptr)[i-1];
+		((string*) arr->ptr)[i] = ((string*) arr->ptr)[i-1];
 	}
-	((char**) arr->ptr)[pos] = val;
+	((string*) arr->ptr)[pos] = val;
 }
-void insert_int(struct vector* arr, int pos, int val) {
+void insert_int(vector* arr, int pos, int val) {
 	if (pos < 0 || pos >= arr->size) {puts("out of bounds");}
 	if (arr->type != INT) {puts("wrong type");}
 	arr->size++;
@@ -260,7 +286,7 @@ void insert_int(struct vector* arr, int pos, int val) {
 	}
 	((int*) arr->ptr)[pos] = val;
 }
-void insert_flt(struct vector* arr, int pos, float val) {
+void insert_flt(vector* arr, int pos, float val) {
 	if (pos < 0 || pos >= arr->size) {puts("out of bounds");}
 	if (arr->type != FLOAT) {puts("wrong type");}
 	arr->size++;
@@ -270,7 +296,7 @@ void insert_flt(struct vector* arr, int pos, float val) {
 	}
 	((float*) arr->ptr)[pos] = val;
 }
-void insert_bool(struct vector* arr, int pos, bool val) {
+void insert_bool(vector* arr, int pos, bool val) {
 	if (pos < 0 || pos >= arr->size) {puts("out of bounds");}
 	if (arr->type != BOOL) {puts("wrong type");}
 	arr->size++;
@@ -283,17 +309,17 @@ void insert_bool(struct vector* arr, int pos, bool val) {
 
 
 // remove
-void remove_string(struct vector* arr, const int pos, char** rval) {
+void remove_string(vector* arr, const int pos, string* rval) {
 	if (pos < 0 || pos >= arr->size) {puts("out of bounds");}
 	if (arr->type != STRING) {puts("wrong type");}
-	*rval = ((char**) arr->ptr)[pos];
+	*rval = ((string*) arr->ptr)[pos];
 	for (size_t i = pos; i < arr->size-1; i++) {
-		((char**) arr->ptr)[i] = ((char**) arr->ptr)[i+1];
+		((string*) arr->ptr)[i] = ((string*) arr->ptr)[i+1];
 	}
 	arr->size--;
 	realloc_vector(arr);
 }
-void remove_int(struct vector* arr, int pos, int* rval) {
+void remove_int(vector* arr, int pos, int* rval) {
 	if (pos < 0 || pos >= arr->size) {puts("out of bounds");}
 	if (arr->type != INT) {puts("wrong type");}
 	*rval = ((int*) arr->ptr)[pos];
@@ -303,7 +329,7 @@ void remove_int(struct vector* arr, int pos, int* rval) {
 	arr->size--;
 	realloc_vector(arr);
 }
-void remove_flt(struct vector* arr, int pos, float* rval) {
+void remove_flt(vector* arr, int pos, float* rval) {
 
 	if (pos < 0 || pos >= arr->size) {puts("out of bounds");}
 	if (arr->type != FLOAT) {puts("wrong type");}
@@ -314,7 +340,7 @@ void remove_flt(struct vector* arr, int pos, float* rval) {
 	arr->size--;
 	realloc_vector(arr);
 }
-void remove_bool(struct vector* arr, int pos, bool* rval) {
+void remove_bool(vector* arr, int pos, bool* rval) {
 	if (pos < 0 || pos >= arr->size) {puts("out of bounds");}
 	if (arr->type != BOOL) {puts("wrong type");}
 	*rval = ((bool*) arr->ptr)[pos];
@@ -327,18 +353,18 @@ void remove_bool(struct vector* arr, int pos, bool* rval) {
 
 
 // filter
-struct vector filter_string(struct vector arr, bool (*f)(char*)) {
+vector filter_string(vector arr, bool (*f)(string)) {
 	if (arr.type != STRING) {puts("wrong type");}
-	struct vector new_arr = new_vector((char**)malloc(0), 0);
+	vector new_arr = new_vector((string*)malloc(0), 0);
 	for (size_t i = 0; i < arr.size-1; i++) {
-		char* val = ((char**) arr.ptr)[i];
+		string val = ((string*) arr.ptr)[i];
 		if (f(val)) {push(&new_arr, val);}
 	}
 	return new_arr;
 }
-struct vector filter_int(struct vector arr, bool (*f)(int)) {
+vector filter_int(vector arr, bool (*f)(int)) {
 	if (arr.type != INT) {puts("wrong type");}
-	struct vector new_arr = new_vector((int*)malloc(0), 0);
+	vector new_arr = new_vector((int*)malloc(0), 0);
 	for (size_t i = 0; i < arr.size-1; i++) {
 		int val = ((int*) arr.ptr)[i];
 		if (f(val)) {push(&new_arr, val);}
@@ -346,18 +372,18 @@ struct vector filter_int(struct vector arr, bool (*f)(int)) {
 
 	return new_arr;
 }
-struct vector filter_flt(struct vector arr, bool (*f)(float)) {
+vector filter_flt(vector arr, bool (*f)(float)) {
 	if (arr.type != FLOAT) {puts("wrong type");}
-	struct vector new_arr = new_vector((float*)malloc(0), 0);
+	vector new_arr = new_vector((float*)malloc(0), 0);
 	for (size_t i = 0; i < arr.size-1; i++) {
 		float val = ((float*) arr.ptr)[i];
 		if (f(val)) {push(&new_arr, val);}
 	}
 	return new_arr;
 }
-struct vector filter_bool(struct vector arr, bool (*f)(bool)) {
+vector filter_bool(vector arr, bool (*f)(bool)) {
 	if (arr.type != BOOL) {puts("wrong type");}
-	struct vector new_arr = new_vector((bool*)malloc(0), 0);
+	vector new_arr = new_vector((bool*)malloc(0), 0);
 	for (size_t i = 0; i < arr.size-1; i++) {
 		bool val = ((bool*) arr.ptr)[i];
 
@@ -368,26 +394,26 @@ struct vector filter_bool(struct vector arr, bool (*f)(bool)) {
 
 
 // map
-void map_string(struct vector* arr, void (*f)(char**)) {
+void map_string(vector* arr, void (*f)(string*)) {
 	if (arr->type != STRING) {puts("wrong type");}
 	for (size_t i = 0; i < arr->size; i++) {
-		f(&((char**)arr->ptr)[i]);
+		f(&((string*)arr->ptr)[i]);
 	}
 
 }
-void map_int(struct vector* arr, void (*f)(int*)) {
+void map_int(vector* arr, void (*f)(int*)) {
 	if (arr->type != INT) {puts("wrong type");}
 	for (size_t i = 0; i < arr->size; i++) {
 		f(&((int*)arr->ptr)[i]);
 	}
 }
-void map_float(struct vector* arr, void (*f)(float*)) {
+void map_float(vector* arr, void (*f)(float*)) {
 	if (arr->type != FLOAT) {puts("wrong type");}
 	for (size_t i = 0; i < arr->size; i++) {
 		f(&((float*)arr->ptr)[i]);
 	}
 }
-void map_bool(struct vector* arr, void (*f)(bool*)) {
+void map_bool(vector* arr, void (*f)(bool*)) {
 	if (arr->type != BOOL) {puts("wrong type");}
 	for (size_t i = 0; i < arr->size; i++) {
 		f(&((bool*)arr->ptr)[i]);
@@ -395,12 +421,12 @@ void map_bool(struct vector* arr, void (*f)(bool*)) {
 }
 
 
-struct vector split_off(struct vector* arr, size_t at) {
+vector split_off(vector* arr, size_t at) {
 	if (at > arr->size-1) {puts("out of bounds");}
 	size_t new_len = arr->size - at;
-	struct vector split_v;
+	vector split_v;
 	    switch (arr->type) {
-			case STRING: split_v = new_vector((char**)arr->ptr + new_len*sizeof(char*), new_len); break;
+			case STRING: split_v = new_vector((string*)arr->ptr + new_len*sizeof(string), new_len); break;
 			case INT: split_v = new_vector((int*)arr->ptr + new_len*sizeof(int), new_len); break;
 			case FLOAT: split_v = new_vector((float*)arr->ptr + new_len*sizeof(float), new_len); break;
 			case BOOL: split_v = new_vector((bool*)arr->ptr + new_len*sizeof(bool), new_len); break;
@@ -412,28 +438,28 @@ struct vector split_off(struct vector* arr, size_t at) {
 
 
 // contains
-bool contains_string(struct vector arr, const char* val) {
+bool contains_string(vector arr, const string val) {
 	if (arr.type != STRING) {puts("wrong type");}
 	for (size_t i = 0; i < arr.size; i++) {
-		if (((char**)arr.ptr)[i] == val) {return true;}
+		if (((string*)arr.ptr)[i] == val) {return true;}
 	}
 	return false;
 }
-bool contains_int(struct vector arr, int val) {
+bool contains_int(vector arr, int val) {
 	if (arr.type != INT) {puts("wrong type");}
 	for (size_t i = 0; i < arr.size; i++) {
 		if (((int*)arr.ptr)[i] == val) {return true;}
 	}
 	return false;
 }
-bool contains_float(struct vector arr, float val) {
+bool contains_float(vector arr, float val) {
 	if (arr.type != FLOAT) {puts("wrong type");}
 	for (size_t i = 0; i < arr.size; i++) {
 		if (((float*)arr.ptr)[i] == val) {return true;}
 	}
 	return false;
 }
-bool contains_bool(struct vector arr, bool val) {
+bool contains_bool(vector arr, bool val) {
 	if (arr.type != BOOL) {puts("wrong type");}
 	for (size_t i = 0; i < arr.size; i++) {
 		if (((bool*)arr.ptr)[i] == val) {return true;}
@@ -443,36 +469,36 @@ bool contains_bool(struct vector arr, bool val) {
 
 
 // fill
-void fill_string(struct vector* arr, const char* val) {
+void fill_string(vector* arr, const string val) {
 	if (arr->type != STRING) {puts("wrong type");}
 	for (size_t i = 0; i < arr->size; i++) {
-		strcpy(((char**)arr->ptr)[i], val);
+		strcpy(((string*)arr->ptr)[i], val);
 	}
 }
-void fill_int(struct vector* arr, int val) {
+void fill_int(vector* arr, int val) {
 	if (arr->type != INT) {puts("wrong type");}
 	for (size_t i = 0; i < arr->size; i++) {
 		((int*)arr->ptr)[i] = val;
 	}
 }
-void fill_float(struct vector* arr, float val) {
+void fill_float(vector* arr, float val) {
 	if (arr->type != FLOAT) {puts("wrong type");}
 	for (size_t i = 0; i < arr->size; i++) {
 		((float*)arr->ptr)[i] = val;
 	}
 }
-void fill_bool(struct vector* arr, bool val) {
+void fill_bool(vector* arr, bool val) {
 	if (arr->type != BOOL) {puts("wrong type");}
 	for (size_t i = 0; i < arr->size; i++) {
 		((bool*)arr->ptr)[i] = val;
 	}
 }
 
-void print(struct vector arr) {
+void print(vector arr) {
 	printf("{");
 	for (int i = 0; i < arr.size; i++) {
 		switch (arr.type) {
-			case STRING: printf("%s", ((char**)arr.ptr)[i]); break;
+			case STRING: printf("%s", ((string*)arr.ptr)[i]); break;
 			case INT: printf("%i", ((int*)arr.ptr)[i]); break;
 			case FLOAT: printf("%f", ((float*)arr.ptr)[i]); break;
 			case BOOL: printf("%d", ((bool*)arr.ptr)[i]); break;
@@ -483,7 +509,7 @@ void print(struct vector arr) {
 	printf("}");
 }
 
-void println(struct vector arr) {
+void println(vector arr) {
 	print(arr);
 	printf("\n");
 }
